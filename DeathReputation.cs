@@ -217,7 +217,7 @@ namespace XRL.World.Parts
                     Reputation myReputation = XRLCore.Core.Game.PlayerReputation;
                     foreach (KeyValuePair<string, int> item in ParentObject.pBrain.FactionMembership)
                     {
-                        myReputation.modify(item.Key, -repMod, true);
+                        myReputation.modify(item.Key, -repMod, false);
                     }
                     foreach (FriendorFoe relatedFaction in relatedFactions)
                     {
@@ -225,21 +225,21 @@ namespace XRL.World.Parts
                         {
                             if ((repMod / 2) > 0)
                             {
-                                myReputation.modify(relatedFaction.faction, -repMod / 2, true);
+                                myReputation.modify(relatedFaction.faction, -repMod / 2, false);
                             }
                         }
                         else if (relatedFaction.status == "dislike")
                         {
                             if ((repMod / 4) > 0)
                             {
-                                myReputation.modify(relatedFaction.faction, repMod / 4, true);
+                                myReputation.modify(relatedFaction.faction, repMod / 4, false);
                             }
                         }
                         else if (relatedFaction.status == "hate")
                         {
                             if ((repMod / 2) > 0)
                             {
-                                myReputation.modify(relatedFaction.faction, repMod / 2, true);
+                                myReputation.modify(relatedFaction.faction, repMod / 2, false);
                             }
                         }
                     }

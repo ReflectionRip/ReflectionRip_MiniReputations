@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<objects>
+  <!-- Creatures -->
+  <object Name="Creature" Load="Merge">
+    <part Name="rr_DeathReputation"></part>
+  </object>
+
+  <!-- InorganicObjects -->
+  <object Name="Baetyl" Load="Merge">
+    <part Name="rr_DeathReputation"></part>
+  </object>
+
+  <!-- Plants -->
+  <object Name="ActivePlant" Load="Merge">
+    <part Name="rr_DeathReputation"></part>
+  </object>
+
+  <!-- Fix the Zealot's Reputations -->
+  <object Name="JoppaZealot" Load="Merge">
+    <part Name="Brain" Wanders="true" Factions="Mechanimists-100,Joppa-50"></part>
+  </object>
+
+  <!-- Fix Ctesiphus' Reputations -->
+  <object Name="Ctesiphus" Load="Merge">
+    <part Name="Brain" Wanders="True" Calm="True" Factions="Joppa-100,Cats-100"></part>
+  </object>
+
+</objects>

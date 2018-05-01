@@ -22,7 +22,7 @@
 
   <!-- Fix Ctesiphus' Reputations -->
   <object Name="Ctesiphus" Load="Merge">
-    <part Name="Brain" Wanders="True" Calm="True" Factions="Joppa-100,Cats-100"></part>
+    <part Name="Brain" Wanders="True" Calm="True" Factions="Joppa-100,Cats-50"></part>
   </object>
 
 </objects>

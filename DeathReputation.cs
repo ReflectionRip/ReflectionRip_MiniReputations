@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using XRL.Core;
 
 namespace XRL.World.Parts
@@ -87,161 +88,123 @@ namespace XRL.World.Parts
                     parentFactions.Add(item.Key);
                 }
 
-                int numParents = parentFactions.Count;
-                if (numParents == 0) return false;
+                if (parentFactions.Count <= 0) return false;
 
-                // Format the list into text
-                descriptionPostfix += "&C-----&y\nLoved by &C";
-
-                for (index = 0; index < numParents - 2; ++index)
+                // Format the Parent Factions list into text
+                descriptionPostfix += "&C-----&y\nLoved by";
+                foreach (string parentFaction in parentFactions)
                 {
-                    descriptionPostfix += Faction.getFormattedName(parentFactions[index]) + "&y, &C";
+                    descriptionPostfix += " &C" + Faction.getFormattedName(parentFaction) + "&y,";
                 }
-                descriptionPostfix += Faction.getFormattedName(parentFactions[numParents - 1]);
-
-                if (numParents > 1)
-                {
-                    descriptionPostfix += "&y, and &C" + Faction.getFormattedName(parentFactions[numParents - 2]);
-                }
+                descriptionPostfix = descriptionPostfix.Remove(descriptionPostfix.Length - 1);
                 descriptionPostfix += "&y.\n";
+
+                if (parentFactions.Count > 1)
+                {
+                    int locationOf = descriptionPostfix.LastIndexOf(",");
+                    descriptionPostfix = descriptionPostfix.Insert(locationOf + 1, " and");
+                }
 
                 // Pick 1-3 Factions to Like/Dislike/Hate
                 int maxFactions = Rules.Stat.Random(1, 3);
 
                 // Adjust the feelings towards other Factions
                 Brain myBrain = ParentObject.GetPart("Brain") as Brain;
-                for (index = 1; index <= maxFactions; ++index)
+                for (index = 1; index <= maxFactions; index++)
                 {
                     int randPercent = Rules.Stat.Random(1, 100);
-                    int factionChange = -100;
-                    if (randPercent <= 10) factionChange = 100;
-                    else if (randPercent <= 55) factionChange = -50;
+                    int factionChange = -50;
+                    if (randPercent <= 10) factionChange = 50;
+                    else if (randPercent <= 55) factionChange = -25;
 
+                    int count = 0;
                     string FoF = GenerateFriendOrFoe.getRandomFaction(ParentObject);
                     AddOrChangeFactionFeelings(myBrain, FoF, factionChange);
                 }
+
+                Dictionary<string, int> tempRelatedFactions = new Dictionary<string, int>();
 
                 // Add all the factions with a significant amount to the list.
                 string myFaction = myBrain.GetPrimaryFaction();
                 foreach (KeyValuePair<string, Faction> item in Factions.FactionList)
                 {
                     if (item.Value.Name == myFaction) continue;
+                    if (item.Value.bVisible == false) continue;
 
                     int factionAmount = Factions.GetFeelingFactionToFaction(myFaction, item.Value.Name);
                     if (myBrain.FactionFeelings.ContainsKey(item.Value.Name))
                     {
                         factionAmount += myBrain.FactionFeelings[item.Value.Name];
                     }
-                    if (factionAmount > 50)
+
+                    if (factionAmount < 0 || factionAmount > 50)
+                    {
+                        tempRelatedFactions.Add(item.Value.Name, factionAmount);
+                    }
+                }
+
+                for (index = 1; index <= maxFactions; index++)
+                {
+                    if (tempRelatedFactions.Count <= 0) break;
+
+                    KeyValuePair<string, int> item = tempRelatedFactions.GetRandomElement((System.Random)null);
+                    if (item.Value > 50)
                     {
                         string reason = GenerateFriendOrFoe.getLikeReason();
                         relatedFactions.Add(new FriendorFoe(item.Key, "friend", reason));
                     }
-                    else if (factionAmount <= -100)
-                    {
-                        string reason = GenerateFriendOrFoe.getHateReason();
-                        relatedFactions.Add(new FriendorFoe(item.Key, "hate", reason));
-                    }
-                    else if (factionAmount < 0)
+                    else
                     {
                         string reason = GenerateFriendOrFoe.getHateReason();
                         relatedFactions.Add(new FriendorFoe(item.Key, "dislike", reason));
                     }
+                    tempRelatedFactions.Remove(item.Key);
                 }
 
-                // Count and sort the factions by category (friend, dislike, hate)
-                int friendCount = 0;
-                int dislikeCount = 0;
-                int hateCount = 0;
 
+                // Count and sort the factions by category (friend, dislike, hate)
+                if (relatedFactions.Count <= 0) return true;
+
+                int friendCount = 0;
+                int hateCount = 0;
+                string friendString = "\nAdmired by ";
+                string hateString = "\nHated by";
                 foreach (FriendorFoe relatedFaction in relatedFactions)
                 {
-                    if (relatedFaction.status == "friend")
+                    if(relatedFaction.status == "friend")
                     {
+                        friendString += " &C" + Faction.getFormattedName(relatedFaction.faction) + "&y,";
                         friendCount += 1;
                     }
-                    else if (relatedFaction.status == "dislike")
+                    else
                     {
-                        dislikeCount += 1;
-                    }
-                    else if (relatedFaction.status == "hate")
-                    {
+                        hateString += " &C" + Faction.getFormattedName(relatedFaction.faction) + "&y,";
                         hateCount += 1;
                     }
                 }
-
                 if (friendCount > 0)
                 {
-                    index = 0;
-                    descriptionPostfix += "\nAdmired by &C";
-                    foreach (FriendorFoe relatedFaction in relatedFactions)
+                    friendString = friendString.Remove(friendString.Length - 1);
+                    friendString += "&y.\n";
+                    if (friendCount > 1)
                     {
-                        if (relatedFaction.status == "friend")
-                        {
-                            index += 1;
-                            if (index < (friendCount - 1))
-                            {
-                                descriptionPostfix += Faction.getFormattedName(relatedFaction.faction) + "&y, &C";
-                            }
-                            else if (index == (friendCount - 1))
-                            {
-                                descriptionPostfix += Faction.getFormattedName(relatedFaction.faction) + "&y, and &C";
-                            }
-                            else
-                            {
-                                descriptionPostfix += Faction.getFormattedName(relatedFaction.faction) + "&y.\n";
-                            }
-                        }
+                        int locationOf = friendString.LastIndexOf(",");
+                        friendString = friendString.Insert(locationOf + 1, " and");
                     }
-                }
-                if (dislikeCount > 0)
-                {
-                    index = 0;
-                    descriptionPostfix += "\nDisliked by &C";
-                    foreach (FriendorFoe relatedFaction in relatedFactions)
-                    {
-                        if (relatedFaction.status == "dislike")
-                        {
-                            index += 1;
-                            if (index < (dislikeCount - 1))
-                            {
-                                descriptionPostfix += Faction.getFormattedName(relatedFaction.faction) + "&y, &C";
-                            }
-                            else if (index == (dislikeCount - 1))
-                            {
-                                descriptionPostfix += Faction.getFormattedName(relatedFaction.faction) + "&y, and &C";
-                            }
-                            else
-                            {
-                                descriptionPostfix += Faction.getFormattedName(relatedFaction.faction) + "&y.\n";
-                            }
-                        }
-                    }
+                    descriptionPostfix += friendString;
                 }
                 if (hateCount > 0)
                 {
-                    index = 0;
-                    descriptionPostfix += "\nHated by &C";
-                    foreach (FriendorFoe relatedFaction in relatedFactions)
+                    hateString = hateString.Remove(hateString.Length - 1);
+                    hateString += "&y.\n";
+                    if (hateCount > 1)
                     {
-                        if (relatedFaction.status == "hate")
-                        {
-                            index += 1;
-                            if (index < (hateCount - 1))
-                            {
-                                descriptionPostfix += Faction.getFormattedName(relatedFaction.faction) + "&y, &C";
-                            }
-                            else if (index == (hateCount - 1))
-                            {
-                                descriptionPostfix += Faction.getFormattedName(relatedFaction.faction) + "&y, and &C";
-                            }
-                            else
-                            {
-                                descriptionPostfix += Faction.getFormattedName(relatedFaction.faction) + "&y.\n";
-                            }
-                        }
+                        int locationOf = hateString.LastIndexOf(",");
+                        hateString = hateString.Insert(locationOf + 1, " and");
                     }
+                    descriptionPostfix += hateString;
                 }
+
                 return true;
             }
             else if(E.ID == "BeforeDeathRemoval")
@@ -250,40 +213,30 @@ namespace XRL.World.Parts
                 GameObject myKiller = E.GetParameter("Killer") as GameObject;
                 if (myKiller == null) return true;
 
-                // Figure out how much to adjust by (repValue * Level)
-                int repMod = repValue * ParentObject.Statistics["Level"].Value;
-                if (repMod == 0) return true;
-
                 // Did the player kill this Creature?
                 if (myKiller.IsPlayer())
                 {
+                    // Figure out how much to adjust by (repValue * Level)
+                    int repMod = repValue * ParentObject.Statistics["Level"].Value;
+                    if (repMod == 0) return true;
+
                     // Adjust the players reputation.
                     Reputation myReputation = XRLCore.Core.Game.PlayerReputation;
                     foreach (KeyValuePair<string, int> item in ParentObject.pBrain.FactionMembership)
                     {
                         myReputation.modify(item.Key, -repMod, false);
                     }
-                    foreach (FriendorFoe relatedFaction in relatedFactions)
+                    if ((repMod / 4) > 0)
                     {
-                        if (relatedFaction.status == "friend")
+                        foreach (FriendorFoe relatedFaction in relatedFactions)
                         {
-                            if ((repMod / 2) > 0)
+                            if (relatedFaction.status == "liked")
                             {
-                                myReputation.modify(relatedFaction.faction, -repMod / 2, false);
+                                myReputation.modify(relatedFaction.faction, -repMod / 4, false);
                             }
-                        }
-                        else if (relatedFaction.status == "dislike")
-                        {
-                            if ((repMod / 4) > 0)
+                            else
                             {
                                 myReputation.modify(relatedFaction.faction, repMod / 4, false);
-                            }
-                        }
-                        else if (relatedFaction.status == "hate")
-                        {
-                            if ((repMod / 2) > 0)
-                            {
-                                myReputation.modify(relatedFaction.faction, repMod / 2, false);
                             }
                         }
                     }
@@ -294,6 +247,10 @@ namespace XRL.World.Parts
                      * not important, but when dominating or when allys make a kill this can be useful to track. 
                      */
 
+                    // Figure out how much to adjust by repValue
+                    int repMod = repValue;
+                    if (repMod == 0) return true;
+
                     // Get the brain of the killer.
                     Brain killersBrain = myKiller.GetPart("Brain") as Brain;
                     if (killersBrain == null) return true;
@@ -303,25 +260,15 @@ namespace XRL.World.Parts
                     {
                         AddOrChangeFactionFeelings(killersBrain, item.Key, -repMod);
                     }
-                    foreach (FriendorFoe relatedFaction in relatedFactions)
+                    if ((repMod / 2) > 0)
                     {
-                        if (relatedFaction.status == "friend")
+                        foreach (FriendorFoe relatedFaction in relatedFactions)
                         {
-                            if ((repMod / 2) > 0)
+                            if (relatedFaction.status == "liked")
                             {
                                 AddOrChangeFactionFeelings(killersBrain, relatedFaction.faction, -repMod / 2);
                             }
-                        }
-                        else if (relatedFaction.status == "dislike")
-                        {
-                            if ((repMod / 4) > 0)
-                            {
-                                AddOrChangeFactionFeelings(killersBrain, relatedFaction.faction, repMod / 4);
-                            }
-                        }
-                        else if (relatedFaction.status == "hate")
-                        {
-                            if ((repMod / 2) > 0)
+                            else
                             {
                                 AddOrChangeFactionFeelings(killersBrain, relatedFaction.faction, repMod / 2);
                             }

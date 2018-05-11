@@ -110,22 +110,25 @@ namespace XRL.World.Parts
 
                 // Adjust the feelings towards other Factions
                 Brain myBrain = ParentObject.GetPart("Brain") as Brain;
+                string myFaction = myBrain.GetPrimaryFaction();
                 for (index = 1; index <= maxFactions; index++)
                 {
                     int randPercent = Rules.Stat.Random(1, 100);
-                    int factionChange = -50;
-                    if (randPercent <= 10) factionChange = 50;
-                    else if (randPercent <= 55) factionChange = -25;
+                    int factionChange = -100;
+                    if (randPercent <= 10) factionChange = 100;
+                    else if (randPercent <= 55) factionChange = 0;
 
-                    int count = 0;
                     string FoF = GenerateFriendOrFoe.getRandomFaction(ParentObject);
+                    factionChange += Factions.GetFeelingFactionToFaction(myFaction, FoF);
+                    if (factionChange > 100) factionChange = 100;
+                    if (factionChange < -100) factionChange = -100;
+                    
                     AddOrChangeFactionFeelings(myBrain, FoF, factionChange);
                 }
 
                 Dictionary<string, int> tempRelatedFactions = new Dictionary<string, int>();
 
                 // Add all the factions with a significant amount to the list.
-                string myFaction = myBrain.GetPrimaryFaction();
                 foreach (KeyValuePair<string, Faction> item in Factions.FactionList)
                 {
                     if (item.Value.Name == myFaction) continue;
@@ -134,7 +137,7 @@ namespace XRL.World.Parts
                     int factionAmount = Factions.GetFeelingFactionToFaction(myFaction, item.Value.Name);
                     if (myBrain.FactionFeelings.ContainsKey(item.Value.Name))
                     {
-                        factionAmount += myBrain.FactionFeelings[item.Value.Name];
+                        factionAmount = myBrain.FactionFeelings[item.Value.Name];
                     }
 
                     if (factionAmount < 0 || factionAmount > 50)

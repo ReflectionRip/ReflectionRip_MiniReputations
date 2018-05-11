@@ -1,7 +1,23 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <objects>
   <!-- Creatures -->
-  <object Name="Creature" Load="Merge">
+  <object Name="Animal" Load="Merge">
+    <part Name="rr_DeathReputation"></part>
+  </object>
+
+  <object Name="Robot" Load="Merge">
+    <part Name="rr_DeathReputation"></part>
+  </object>
+
+  <object Name="BaseHumanoid" Load="Merge">
+    <part Name="rr_DeathReputation"></part>
+  </object>
+
+  <object Name="BaseApe" Load="Merge">
+    <part Name="rr_DeathReputation"></part>
+  </object>
+
+  <object Name="MutatedPlant" Load="Merge">
     <part Name="rr_DeathReputation"></part>
   </object>
 
@@ -24,5 +40,21 @@
   <object Name="Ctesiphus" Load="Merge">
     <part Name="Brain" Wanders="True" Calm="True" Factions="Joppa-100,Cats-50"></part>
   </object>
+
+  <!-- 
+  <object Name="Emotion-Scanning Bracelet" Inherits="BaseBracelet">
+    <part Name="Armor" AV="0" DV="0" RF="0" WornOn="Arm" />
+    <part Name="Render" DisplayName="Emotion-Scanning &amp;ybracelet&amp;y" RenderString="]" ColorString="&amp;C" />
+    <part Name="Commerce" Value="25" />
+    <part Name="Description" Short="A wrist-held display device that gives a detailed readout of a targets emotional response to others." />
+    <part Name="Physics" Weight="1" Category="Artifacts" />
+    <part Name="rr_EmotionScanner" />
+    <part Name="EnergyCellSocket" SlotType="EnergyCell" SlottedType="Solar Cell" />
+    <part Name="TinkerItem" Bits="0024" CanDisassemble="true" CanBuild="true" CanRepair="true" />
+    <part Name="Metal" />
+    <tag Name="Tier" Value="4" />
+  </object> 
+  -->
+
 
 </objects>

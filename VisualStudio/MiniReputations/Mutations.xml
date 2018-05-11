@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mutations>
+  <category Name="Mental">
+    <mutation Name="Read Emotions" Cost="1" MaxSelected="1" Class="rr_ReadEmotions" Exclusions="" Code="r9" Prerelease="true"></mutation>
+  </category>
+</mutations>

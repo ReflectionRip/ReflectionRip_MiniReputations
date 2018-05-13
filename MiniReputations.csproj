@@ -12,15 +12,6 @@
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
@@ -41,19 +32,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DeathReputation.cs" />
-    <Compile Include="EmotionScanner.cs" />
+    <Compile Include="Release\DeathReputation.cs" />
+    <Compile Include="Release\EmotionScanner.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ReadEmotions.cs" />
+    <Compile Include="Release\ReadEmotions.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Mutations.xml" />
-    <Content Include="ObjectBlueprints.xml">
+    <Content Include="Release\Mutations.xml" />
+    <Content Include="Release\ObjectBlueprints.xml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <None Include="workshop.json" />
+    <None Include="Release\workshop.json" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
